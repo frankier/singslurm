@@ -4,6 +4,7 @@ import re
 import math
 import argparse
 import subprocess
+import req_run
 
 from snakemake import io
 from snakemake.io import Wildcards
@@ -126,7 +127,7 @@ def submit_job(jobscript, **sbatch_options):
     """Submit jobscript and return jobid."""
     optsbatch_options = [f"--{k}={v}" for k, v in sbatch_options.items()]
     try:
-        res = subprocess.check_output(["sbatch"] + optsbatch_options + [jobscript])
+        res = req_run.check_output(["sbatch"] + optsbatch_options + [jobscript])
     except subprocess.CalledProcessError as e:
         raise e
     # Get jobid
