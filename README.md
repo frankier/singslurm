@@ -1,45 +1,33 @@
-[![CircleCI](https://circleci.com/gh/percyfal/slurm.svg?style=svg)](https://circleci.com/gh/percyfal/slurm)
+# singslurm
 
-# slurm
+This profile configures Snakemake installed within a Singularity container to run on the [SLURM Workload Manager](https://slurm.schedmd.com/)
 
-This profile configures Snakemake to run on the [SLURM Workload Manager](https://slurm.schedmd.com/)
+The project is a fork of [the SLURM Snakemake
+profile](https://github.com/Snakemake-Profiles/slurm), but some changes have
+been made:
 
-## Setup
+  * Add a coordinator script which sets up everything to run in Singularity and passes messages through the filesystem to the host to run SLURM commands on behalf of the container
+  * Remove the reliance on cookiecutter completely. Basic customisation can be done with environment variables. For advanced customisation, just vendorise/fork this repo.
 
-### Deploy profile
+## Running
+It can be run by downloading the self bootstrapping `run_coord.sh` file, and
+executing specifying arguments as environment variables:
 
-To deploy this profile, run
+ * $SIF_PATH: Path to SIF file for everything -- control and execution
+ * $SNAKEFILE: Path within container to directory containing Snakefile
+ * $CLUSC_CONF: Path within container to file mapping rules to resource requirements
+ * $CLUSC_CONF_ON_HOST: If set $CLUSC_CONF is checked from the host system instead
+ * $TRACE: Trace this script
+ * $SBATCH_DEFAULTS: Default arguments to pass to sbatch
+ * $JOBS: Max jobs at the Snakemake level. Each may include many SLURM tasks. 128 by default.
 
-	mkdir -p ~/.config/snakemake
-	cd ~/.config/snakemake
-	cookiecutter https://github.com/Snakemake-Profiles/slurm.git
-
-Then, you can run Snakemake with
-
-	snakemake --profile slurm ...
-
-### Cookiecutter options
-
-* `profile_name` : A name to address the profile via the `--profile` Snakemake option.
-* `sbatch_defaults` : List of default arguments to sbatch, e.g.: `qos=short time=60`.
-  This is a convenience argument to avoid `cluster_config` for a few aruments.
-* `cluster_config` : Path to a YAML or JSON configuration file analogues to the
-  Snakemake [`--cluster-config` option](https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html#cluster-configuration-deprecated).
-  Path may relative to the profile directory or absolute including environment variables
-  (e.g. `$PROJECT_ROOT/config/slurm_defaults.yaml`).
-* `advanced_argument_conversion` : If True, try to adjust/constrain mem, time, nodes and ntasks (i.e. cpus) to
-  parsed or default partition after converting resources. This may fail due to heterogeneous slurm setups,
-  i.e. code adjustments will likely be necessary.
-
-### Default snakemake arguments
-Default arguments to ``snakemake`` maybe adjusted in the ``<profile path>/config.yaml`` file.
-
+Its actual arguments will be passed to Snakemake within the container
 
 ## Parsing arguments to SLURM (sbatch)
 Arguments are overridden in the following order and must be named according to
 [sbatch long option names](https://slurm.schedmd.com/sbatch.html):
 
-1) `sbatch_defaults` cookiecutter option
+1) $SBATCH_DEFAULTS environment variable
 2) Profile `cluster_config` file `__default__` entries
 3) Snakefile threads and resources (time, mem)
 4) Profile `cluster_config` file <rulename> entries
@@ -69,57 +57,4 @@ large_memory_requirement_job:
 
 
 ## Tests
-Test-driven development is enabled through the tests folder. Provided
-that the user has installed docker and enabled [docker
-swarm](https://docs.docker.com/engine/swarm/) (`docker swarm init`), the SLURM tests will
-download two images:
-
-1. [quay.io/biocontainers/snakemake](https://quay.io/repository/biocontainers/snakemake?tab=tags)
-2. [giovtorres/docker-centos7-slurm](https://github.com/giovtorres/docker-centos7-slurm)
-
-and testing of the cookiecutter template itself is enabled
-through the [pytest plugin for
-Cookiecutters](https://github.com/hackebrot/pytest-cookies). You can
-run the tests by issuing
-
-	pytest -v -s
-
-
-## ChangeLog
-
-### 2020-04-15
-
-- process string patterns in snakemake style (replace keywords in braces)
-
-### 2020-03-31
-
-- map threads to `--cpus-per-task` (#35)
-- rewrite some tests to address changes
-
-### 2020-02-29
-
-- major rewrite and merge of the `slurm-submit.py` script to support any sbatch argument
-- parse any argument via the `sbatch_defaults` option and
-- enable per-profile cluster (YAML/JSON) config file
-- make experimental sbatch argument adjustments optional via the `advanced_argument_conversion` option
-
-### 2019-09-03
-
-- add qos option
-
-### 2019-08-21
-
-- replace pytest_namespace with pytest_configure
-- make days optional (#18)
-
-### 2018-10-18
-
-- add cookiecutter options to set sbatch output and error defaults
-
-### 2018-10-09
-
-- add support for mem_mb in resources
-- add support for cluster configuration file
-- add advanced slurm-submit file
-- adjust resource requirements if they exceed partition configuration
-  settings (#11)
+Tests are currently broken.

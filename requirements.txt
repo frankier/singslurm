@@ -1,5 +1,3 @@
-cookiecutter
-
 # Testing
 docker==3.*
 snakemake==5.10.*

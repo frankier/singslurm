@@ -1,6 +1,0 @@
-{
-    "profile_name": "slurm",
-    "sbatch_defaults": "",
-    "cluster_config": "",
-    "advanced_argument_conversion": ["no", "yes"]
-}
