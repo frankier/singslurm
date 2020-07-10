@@ -18,7 +18,7 @@ cd singslurm
 cat << CONFIGPY > singslurm/config.py
 SBATCH_DEFAULTS = "$SBATCH_DEFAULTS"
 CLUSTER_CONFIG = "$CLUSC_CONF"
-ADVANCED_ARGUMENT_CONVERSION = ["no", "yes"]
+ADVANCED_ARGUMENT_CONVERSION = False
 CONFIGPY
 
 # Step 2) Modify job starting script to use Singularity
