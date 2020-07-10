@@ -28,9 +28,11 @@ Then specifying arguments as environment variables:
 
 Its actual arguments will be passed to Snakemake within the container.
 
-If you want to run the control job a cluster node, rather than a login node, just do e.g.:
+If you want to run the control job a cluster node, rather than a login node,
+just put your environment variable arguments and execution of `run_coord.sh` in
+a script `run_myproj.sh` and submit manually e.g.:
 
-  $ squeue
+  $ sbatch --time 5-00:00:00 ./run_myproj.sh
 
 ## Parsing arguments to SLURM (sbatch)
 Arguments are overridden in the following order and must be named according to
