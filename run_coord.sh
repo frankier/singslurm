@@ -1,23 +1,11 @@
 #!/usr/bin/env bash
 
-# Arguments
-#   $SIF_PATH: Path to SIF file for everything -- control and execution
-#   $SNAKEFILE: Path within container to directory containing Snakefile
-#   $CLUSC_CONF: Path within container to file mapping rules to resource
-#   requirements
-#   $CLUSC_CONF_ON_HOST: If set $CLUSC_CONF is checked from the host system
-#   instead
-#   $TRACE: Trace this script
-#   $SBATCH_DEFAULTS: Default arguments to pass to sbatch
-#   $JOBS: Max jobs at the Snakemake level. Each may include many SLURM tasks. 128 by default.
-#   
-
 if [[ -n "$TRACE" ]]; then
   set -o xtrace
 fi
 
-if [[ -n "$JOBS" ]]; then
-  export JOBS=128
+if [[ -n "$NUM_JOBS" ]]; then
+  export NUM_JOBS=128
 fi
 
 [ -f $SIF_PATH ] || echo "Point $$SIF_PATH at Singularity .sif file."
@@ -25,28 +13,15 @@ fi
 # Step 1) Bootstrap slurm profile to temporary directory,
 tmp_dir=$(mktemp -d -t singslurm-XXXXXXXXXX)
 pushd $tmp_dir
-git clone https://github.com/frankier/singslurm.git singslurmcc
-cd singslurmcc
+git clone https://github.com/frankier/singslurm.git singslurm
+cd singslurm
 cat << CONFIGPY > singslurm/config.py
 sbatch_defaults = "$SBATCH_DEFAULTS"
 cluster_config = "$CLUSC_CONF"
 advanced_argument_conversion = ["no", "yes"]
 CONFIGPY
-cd ..
 
-# Step 2) Bootstrap snakemake start script
-cat << RUN_SNAKEMAKE > run_snakemake.sh
-#!/usr/bin/env bash
-
-snakemake \
-  -j$JOBS \
-  --profile $tmp_dir/singslurm \
-  --snakefile $SNAKEFILE \
-  $@
-RUN_SNAKEMAKE
-chmod +x run_snakemake.sh
-
-# Step 3) Modify job starting script to use Singularity
+# Step 2) Modify job starting script to use Singularity
 cat << JOBSCRIPT > singslurm/slurm-jobscript.sh
 #!/bin/bash
 # properties = {properties}
@@ -56,13 +31,25 @@ EXECJOB
 JOBSCRIPT
 chmod +x singslurm/slurm-jobscript.sh
 
+cd ..
+
+# Step 3) Bootstrap snakemake start script
+cat << RUN_SNAKEMAKE > run_snakemake.sh
+#!/usr/bin/env bash
+
+snakemake \
+  -j$NUM_JOBS \
+  --profile $tmp_dir/singslurm/singslurm \
+  --snakefile $SNAKEFILE \
+  $@
+RUN_SNAKEMAKE
+chmod +x run_snakemake.sh
+
 # Step 4)
 # Execute Snakemake coordinator using Singularity
-# Must map in:
-#   1) Bootstrapped tmp directory with
-#      * Snakemake SLURM profile
-#      * Snakemake running script
-#   2) At least sinfo/sbatch
+# Must map in bootstrapped tmp directory with:
+#  * Snakemake SLURM profile
+#  * Snakemake running script
 sing_args=""
 if [[ -n "$CLUSC_CONF_ON_HOST" ]]; then
     sing_args="--bind $CLUSC_CONF"
