@@ -16,9 +16,9 @@ pushd $tmp_dir
 git clone https://github.com/frankier/singslurm.git singslurm
 cd singslurm
 cat << CONFIGPY > singslurm/config.py
-sbatch_defaults = "$SBATCH_DEFAULTS"
-cluster_config = "$CLUSC_CONF"
-advanced_argument_conversion = ["no", "yes"]
+SBATCH_DEFAULTS = "$SBATCH_DEFAULTS"
+CLUSTER_CONFIG = "$CLUSC_CONF"
+ADVANCED_ARGUMENT_CONVERSION = ["no", "yes"]
 CONFIGPY
 
 # Step 2) Modify job starting script to use Singularity
