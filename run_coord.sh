@@ -4,7 +4,7 @@ if [[ -n "$TRACE" ]]; then
   set -o xtrace
 fi
 
-if [[ -n "$NUM_JOBS" ]]; then
+if [[ -z "$NUM_JOBS" ]]; then
   export NUM_JOBS=128
 fi
 
