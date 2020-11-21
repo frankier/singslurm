@@ -12,8 +12,8 @@ been made:
 ## Running
 It can be run by downloading the self bootstrapping `run_coord.sh` file.
 
-  $ wget https://raw.githubusercontent.com/frankier/singslurm/master/run_coord.sh
-  $ chmod +x run_coord.sh
+    $ wget https://raw.githubusercontent.com/frankier/singslurm/master/run_coord.sh
+    $ chmod +x run_coord.sh
 
 Then specifying arguments as environment variables:
 
@@ -32,7 +32,7 @@ If you want to run the control job a cluster node, rather than a login node,
 just put your environment variable arguments and execution of `run_coord.sh` in
 a script `run_myproj.sh` and submit manually e.g.:
 
-  $ sbatch --time 5-00:00:00 ./run_myproj.sh
+    $ sbatch --time 5-00:00:00 ./run_myproj.sh
 
 ## Parsing arguments to SLURM (sbatch)
 Arguments are overridden in the following order and must be named according to
