@@ -63,18 +63,7 @@ touch $tmp_dir/req_run/reqs
 trap "exit" INT TERM
 trap "kill 0" EXIT
 
-tail -f $tmp_dir/req_run/reqs 2>/dev/null | (
-while IFS= read -r line
-do
-  iden=${line%%" "*}
-  cmd=${line#*" "}
-  echo "Running iden: $iden on behalf of container: $cmd"
-  $cmd > $tmp_dir/req_run/$iden.stdout 2> $tmp_dir/req_run/$iden.stderr
-  echo $? > $tmp_dir/req_run/$iden.code
-  cat $tmp_dir/req_run/$iden.stdout
-  cat $tmp_dir/req_run/$iden.stderr
-done
-) &
+tail -f $tmp_dir/req_run/reqs 2>/dev/null | $tmp_dir/singslurm/executor.sh $tmp_dir $ &
 
 singularity exec \
     $sing_args \
