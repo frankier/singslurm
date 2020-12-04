@@ -63,7 +63,7 @@ touch $tmp_dir/req_run/reqs
 trap "exit" INT TERM
 trap "kill 0" EXIT
 
-tail -f $tmp_dir/req_run/reqs 2>/dev/null | $tmp_dir/singslurm/executor.sh $tmp_dir $ &
+tail -f $tmp_dir/req_run/reqs 2>/dev/null | $tmp_dir/singslurm/executor.sh $tmp_dir &
 
 singularity exec \
     $sing_args \
